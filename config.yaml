@@ -1,0 +1,58 @@
+camera:
+  index: 0
+  width: 1280
+  height: 720
+  fps: 30
+  # Jetson USB camera — uncomment and remove index/width/height/fps above:
+  # gstreamer_pipeline: "v4l2src device=/dev/video0 ! video/x-raw,width=1280,height=720,framerate=30/1 ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1"
+  # Jetson CSI camera (IMX219) — uncomment instead:
+  # gstreamer_pipeline: "nvarguscamerasrc ! video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1 ! nvvidconv flip-method=2 ! video/x-raw,format=BGRx ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1"
+
+mediapipe:
+  model_path: pose_landmarker_full.task
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
+  delegate: cpu     # gpu requires mediapipe built from source with GPU flags — not available via pip
+
+calibration:
+  hold_duration: 3.0      # seconds to hold each pose
+  save_path: calibration.json
+
+completion:
+  amplification_factor: 3.0
+  smoothing_alpha: 0.35    # higher = more responsive, less smooth
+  velocity_cap: 0.10       # higher = arm can move faster per frame
+  use_lstm: false
+  lstm_blend: 0.3
+
+estimator:
+  q_vel: 0.08       # lower = smoother, less responsive to noise
+  r_cam: 0.012
+  r_cam_z: 0.20
+  r_imu: 1.0
+  init_p: 0.01
+  gate_thresh: 9.2
+
+udp:
+  host: "127.0.0.1"
+  port: 5005
+
+lstm:
+  sequence_length: 30
+  hidden_size: 128
+  num_layers: 2
+  model_path: lstm_model.pt
+  data_dir: recordings
+
+game:
+  width: 800
+  height: 600
+  max_balloons: 6
+  spawn_interval: 1.0     # seconds between new balloon spawns
+  arm_scale: 3.2          # world-units per MediaPipe normalised unit
+
+arduino:
+  port: COM5          # Windows — change to /dev/ttyUSB0 on Jetson
+  baud: 115200
+  emg_threshold: 500      # analogRead value (0-4095, ESP32 12-bit ADC) to trigger burst
+  burst_cooldown: 8.0     # seconds before another burst is allowed

@@ -1,0 +1,15 @@
+# Core pipeline
+opencv-python
+mediapipe
+numpy
+pyyaml
+pyserial
+
+# Rendering (game layer)
+pygame
+PyOpenGL
+PyOpenGL_accelerate
+
+# Not currently required: the LSTM completion path in completion.py imports
+# `lstm_predictor`, a module that was never implemented (see README). Only
+# add a torch/etc. dependency here if you build that module out.
